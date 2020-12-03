@@ -1,0 +1,4 @@
+mkdir /root/astmbi.inbox.data/
+mkdir /root/astmbi.inbox.arch/
+mkdir /root/astmbi.outbox.data/
+mkdir /root/astmbi.outbox.arch/

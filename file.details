@@ -1,0 +1,24 @@
+.:
+total 148
+-rw-r--r-- 1 root root  3206 Dec  1 21:06 astm_bidirectional_common.py
+-rw-r--r-- 1 root root   459 Dec  1 21:06 astm_bidirectional_conf.py
+-rwxr-xr-x 1 root root 13588 Dec  1 21:06 astm_bidirectional_general_each_line.py
+-rwxr-xr-x 1 root root 12888 Dec  1 21:06 astm_bidirectional_general.py
+-rwxr-xr-x 1 root root 12888 Dec  1 21:06 astm_bidirectional_xl_1000.py
+-rwxr-xr-x 1 root root  9894 Dec  1 21:06 astm_file2mysql_bidirectional_cl_general_vitros.py
+-rwxr-xr-x 1 root root 11577 Dec  1 21:06 astm_file2mysql_bidirectional_general.py
+-rwxr-xr-x 1 root root  9310 Dec  1 21:06 astm_file2mysql_bidirectional_xl_1000.py
+-rw-r--r-- 1 root root  8937 Dec  1 21:06 bidirectional_general.py
+-rw-r--r-- 1 root root     0 Dec  1 21:09 file.details
+-rw-r--r-- 1 root root 35149 Dec  1 21:05 LICENSE
+-rw-r--r-- 1 root root    65 Dec  1 21:05 README.md
+drwxr-xr-x 2 root root  4096 Oct 15 21:34 utility
+
+./utility:
+total 24
+-rwxr-xr-x 1 root root  99 Oct 14 17:28 COPY_SERVICE.sh
+-rwxr-xr-x 1 root root  91 Oct 14 17:28 INSTALL_SERVICE.sh
+-rwxr-xr-x 1 root root 122 Oct 14 17:28 mk_folders
+-rwxr-xr-x 1 root root 160 Oct 14 17:28 reset_everything.sh
+-rwxr-xr-x 1 root root 240 Oct 14 17:28 sofia_read.service
+-rwxr-xr-x 1 root root 226 Oct 14 17:28 sofia_write.service

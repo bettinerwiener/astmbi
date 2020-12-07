@@ -8,6 +8,7 @@ import logging
 import fcntl
 import datetime
 
+import astm_bidirectional_conf as conf
 from astm_file2mysql_bidirectional_general import astm_file
 
 #For mysql password
@@ -248,10 +249,8 @@ def print_to_log(object1,object2):
 
 
 if __name__=='__main__':
-  set_configuration_file_path()
-  import astm_bidirectional_conf as conf
-  logging.basicConfig(filename=conf.astm_log_filename,level=logging.DEBUG,format='%(asctime)s : %(message)s')   
- 
+  logging.basicConfig(filename=conf.file2mysql_log_filename,level=logging.DEBUG)  
+
   #print('__name__ is ',__name__,',so running code')
   while True:
     m=astm_file_xl1000()

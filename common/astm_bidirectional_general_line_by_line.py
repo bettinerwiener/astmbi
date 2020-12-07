@@ -2,7 +2,8 @@
 import fcntl, signal, logging, sys
 
 import bidirectional_general as astmg
-from astm_bidirectional_common import file_mgmt, print_to_log, set_configuration_file_path
+import astm_bidirectional_conf as conf
+from astm_bidirectional_common import file_mgmt, print_to_log
 
 class astms(astmg.astmg, file_mgmt):
   def __init__(self,inbox_data,inbox_arch,outbox_data,outbox_arch,alarm_time,host_address,host_port,select_timeout):
@@ -18,6 +19,11 @@ class astms(astmg.astmg, file_mgmt):
           #4=2nd ack received
           #0=eot sent
 
+    
+    self.total_lines=0
+    self.byte_data_list=[]
+    self.current_line=0
+    
     self.set_inbox(inbox_data,inbox_arch)
     self.set_outbox(outbox_data,outbox_arch)
 
@@ -83,7 +89,7 @@ class astms(astmg.astmg, file_mgmt):
 
     elif(data==b'\x06'):            #ACK when sending
 
-      if(self.send_status==1):
+      if( (self.send_status==1 or self.send_status==2) and (self.current_line<self.total_lines or self.current_line==0 ) ):
         signal.alarm(0)
         self.send_status=2
         print_to_log('send_status=={}'.format(self.send_status),'post-ENQ ACK')
@@ -92,20 +98,31 @@ class astms(astmg.astmg, file_mgmt):
         
         self.write_set.add(self.conn[0])                      #Add in write set, for next select() to make it writable
         self.error_set=self.read_set.union(self.write_set)    #update error set
+        print_to_log('######current line: ',self.current_line)
+       
+        if(self.current_line==0):     #open, set data
+          self.get_first_outbox_file()                          #set current_outbox file
+          fd=open(self.outbox_data+self.current_outbox_file,'rb')
         
-        self.get_first_outbox_file()                          #set current_outbox file
-        fd=open(self.outbox_data+self.current_outbox_file,'rb')
+          #data must not be >1024
+          #it will be ETX data , not ETB data
+          #Frame number will always be one and only one
+          #line by line data setup
+          self.byte_data_list=fd.read(2024).split(b'\x0a')
+          print_to_log('byte_data_list',self.byte_data_list)
+          
+          self.total_lines=len(self.byte_data_list)-1  #python split alway return minimum 1 len list
+          self.current_line=0
+          print_to_log('total_lines',self.total_lines)
+          print_to_log('current line: ',self.current_line)
         
-        #data must not be >1024
-        #it will be ETX data , not ETB data
-        #Frame number will always be one and only one
-        byte_data=fd.read(2024)                               
-        
+        byte_data=self.byte_data_list[self.current_line]+ b'\x0a'       
         print_to_log('File Content',byte_data)
         chksum=self.get_checksum(byte_data)
         print_to_log('CHKSUM',chksum)
         self.write_msg=byte_data #set message
-        
+        self.current_line=self.current_line+1
+
         #self.send_status=3       
         #data sent -> change status only when really data of stx-lf or anyother-inappropriate frame really sent
         
@@ -191,10 +208,9 @@ class astms(astmg.astmg, file_mgmt):
     self.write_set.remove(self.conn[0])                   #now no message pending, so remove it from write set
     self.error_set=self.read_set.union(self.write_set)    #update error set
 
-   
     #specific code for ASTM status update
     #if sending: ENQ, ...LF, EOT is sent
-    #ff receiving: ACK, NAK sent (ACK seding donot need to change status, it activates only alarm
+    #ff receiving: ACK, NAK sent (ACK sending donot need to change status, it activates only alarm
     if(self.write_msg==b'\x04'):      #if EOT sent
       self.main_status=0
       self.send_status=0
@@ -202,8 +218,12 @@ class astms(astmg.astmg, file_mgmt):
       signal.alarm(0)
       print_to_log('Neutral State','.. so stopping alarm') 
     elif(self.write_msg[-1:]==b'\x0a'): #if main message sent
-      self.send_status=3
-      print_to_log('main_status={} send_status={}'.format(self.main_status,self.send_status),'.. because message is sent(LF)') 
+      if(self.current_line>=self.total_lines):
+        self.send_status=3
+        print_to_log('main_status={} send_status={}'.format(self.main_status,self.send_status),'.. because message is sent(LF)') 
+      else:
+        pass  #donot change status
+        
     elif(self.write_msg==b'\x05'):      #if enq sent
       self.send_status=1
       print_to_log('main_status={} send_status={}'.format(self.main_status,self.send_status),'.. because ENQ is sent') 
@@ -280,8 +300,6 @@ class astms(astmg.astmg, file_mgmt):
 #Main Code###############################
 #use this to device your own script
 if __name__=='__main__':
-  set_configuration_file_path()
-  import astm_bidirectional_conf as conf
   logging.basicConfig(filename=conf.astm_log_filename,level=logging.DEBUG,format='%(asctime)s : %(message)s')   
   
   #print('__name__ is ',__name__,',so running code')

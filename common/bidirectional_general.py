@@ -51,7 +51,7 @@ class astmg(object):
     print_to_log('Following will be sent',self.write_msg) 
     try:
       self.conn[0].send(self.write_msg)
-      self.write_msg=''
+      self.write_msg='' #not in astm. because status 
     except Exception as my_ex :
       print_to_log("Disconnection from client?",my_ex)                    
     self.write_set.remove(self.conn[0])                   #now no message pending, so remove it from write set

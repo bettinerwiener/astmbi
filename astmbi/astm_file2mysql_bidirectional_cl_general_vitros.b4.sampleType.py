@@ -18,8 +18,6 @@ import astm_var
 #classes#################################
 class astm_file_xl1000(astm_file):
   equipment=conf.equipment  #no self. only inside defination 
-  def get_sample_type_vitros_code(self,sample_type):
-    pass
   def manage_final_data(self):
     print_to_log('final_data',self.final_data)
     con=self.get_link(astm_var.my_host,astm_var.my_user,astm_var.my_pass,astm_var.my_db)
@@ -103,7 +101,7 @@ class astm_file_xl1000(astm_file):
             print_to_log('Q prepared_sql:',prepared_sql_q)
             data_tpl=(sample_id,self.equipment)
             print_to_log('Q data tuple:',data_tpl)
-            try:
+            try: 
               cur=self.run_query(con,prepared_sql_q,data_tpl)
               print_to_log('Q cursor:',cur)
             except Exception as my_ex:
@@ -148,15 +146,15 @@ class astm_file_xl1000(astm_file):
 
     #frame_number=1 in headerline, but not used, because only one frame(STX-ETX-LF will be sent per EOT)
     #5 = serum for vitros
-
+    
     print_to_log('seperators ',self.s1+self.s2+self.s3+self.s4)
-
+    
     #Old
     '''
     header_line=  b'1H'+self.s1.encode()+self.s2.encode()+self.s3.encode()+self.s4.encode()+b'|||3600796||||||||LIS2-A|'+time_now.encode()
     patient_line= b'2P|1|NOPID|||NONAME^^|||F'
     order_line=   b'3O|1|'+sample_id.encode()+b'||'+ex_code_str+b'|R||'+time_now.encode()+b'||||N||||5||||||||||O'
-    terminator_line=b'4L|1|N'
+    terminator_line=b'4L|1|N'    
     str_for_checksum=b'\x02'+header_line+b'\x0d'+patient_line+b'\x0d'+order_line+ b'\x0d'+terminator_line+ b'\x0d\x03'
     checksum=self.get_checksum(str_for_checksum)
     print_to_log('Calculated checksum=: ',checksum)
@@ -164,13 +162,13 @@ class astm_file_xl1000(astm_file):
     print_to_log('Final message: ',final_message)
     return final_message
     '''
-
+    
     header_line=  b'1H'+self.s1.encode()+self.s2.encode()+self.s3.encode()+self.s4.encode()+b'|||3600796||||||||LIS2-A|'+time_now.encode()
     patient_line= b'2P|1|NOPID|||NONAME^^|||F'
     order_line=   b'3O|1|'+sample_id.encode()+b'||'+ex_code_str+b'|R||'+time_now.encode()+b'||||N||||5||||||||||O'
     terminator_line=b'4L|1|N'
     return self.format_astm_message(header_line)+self.format_astm_message(patient_line)+self.format_astm_message(order_line)+self.format_astm_message(terminator_line)
-
+    
   def format_astm_message(self,message):
     message_for_checksum=b'\x02'+message+b'\x0d\x03'
     message_checksum=self.get_checksum(message_for_checksum)
@@ -178,7 +176,7 @@ class astm_file_xl1000(astm_file):
     final_message=message_for_checksum+message_checksum+b'\x0d\x0a'
     print_to_log('Final message: ',final_message)
     return final_message
- 
+            
   def get_checksum(self,data):
     checksum=0
     start_chk_counting=False

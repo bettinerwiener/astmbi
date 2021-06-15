@@ -18,8 +18,25 @@ import astm_var
 #classes#################################
 class astm_file_xl1000(astm_file):
   equipment=conf.equipment  #no self. only inside defination 
-  def get_sample_type_vitros_code(self,sample_type):
-    pass
+
+  def get_sample_type_vitros_code(self,sample_id):
+    con=self.get_link(astm_var.my_host,astm_var.my_user,astm_var.my_pass,astm_var.my_db)
+    sample_requirement_id=1000   
+    prepared_sql='select vitros_sample_type from lis_to_vitros_sample_type,result where \
+                    sample_id=%s and examination_id=%s and result=lis_sample_type'
+                    
+    data_tpl=(sample_id,sample_requirement_id)
+    
+    try:          
+      cur=self.run_query(con,prepared_sql,data_tpl)
+      row=self.get_single_row(cur)
+      print_to_log('sample type for vitros:',row)
+      self.close_cursor(cur)
+      return row[0]
+    except Exception as my_ex:
+      print_to_log('exception description:',my_ex)
+      return None
+      
   def manage_final_data(self):
     print_to_log('final_data',self.final_data)
     con=self.get_link(astm_var.my_host,astm_var.my_user,astm_var.my_pass,astm_var.my_db)
@@ -165,9 +182,11 @@ class astm_file_xl1000(astm_file):
     return final_message
     '''
 
+    vitros_sample_code=self.get_sample_type_vitros_code(sample_id).encode()
     header_line=  b'1H'+self.s1.encode()+self.s2.encode()+self.s3.encode()+self.s4.encode()+b'|||3600796||||||||LIS2-A|'+time_now.encode()
     patient_line= b'2P|1|NOPID|||NONAME^^|||F'
-    order_line=   b'3O|1|'+sample_id.encode()+b'||'+ex_code_str+b'|R||'+time_now.encode()+b'||||N||||5||||||||||O'
+    #order_line=   b'3O|1|'+sample_id.encode()+b'||'+ex_code_str+b'|R||'+time_now.encode()+b'||||N||||5||||||||||O'
+    order_line=   b'3O|1|'+sample_id.encode()+b'||'+ex_code_str+b'|R||'+time_now.encode()+b'||||N||||'+vitros_sample_code+b'||||||||||O'
     terminator_line=b'4L|1|N'
     return self.format_astm_message(header_line)+self.format_astm_message(patient_line)+self.format_astm_message(order_line)+self.format_astm_message(terminator_line)
 

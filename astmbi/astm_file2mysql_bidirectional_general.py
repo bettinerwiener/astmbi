@@ -16,7 +16,7 @@ class astm_file(file_mgmt,my_sql):
   def __init__(self):
     self.set_inbox(conf.inbox_data,conf.inbox_arch)
     self.set_outbox(conf.outbox_data,conf.outbox_arch)
-        
+
     self.wait_for=''
     self.previous_byte=''
     self.next_frame_number=1  #First frame after ENQ-STX is always 1 (not 0)
@@ -328,7 +328,7 @@ def print_to_log(object1,object2):
 if __name__=='__main__':
   logging.basicConfig(filename=conf.file2mysql_log_filename,level=logging.DEBUG)  
 
-  #print('__name__ is ',__name__,',so running code')
+  print('__name__ is ',__name__,',so running code')
   while True:
     m=astm_file()
     if(m.get_first_inbox_file()):

@@ -206,6 +206,7 @@ if __name__=='__main__':
 
   print('__name__ is ',__name__,',so running code')
   while True:
+    print("hi")
     m=astmg(conf.host_address,conf.host_port,conf.select_timeout)
     m.astmg_loop()
     #break; #useful during debugging

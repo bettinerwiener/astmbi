@@ -320,7 +320,7 @@ class astms(astmg.astmg, file_mgmt):
 if __name__=='__main__':
   logging.basicConfig(filename=conf.astm_log_filename,level=logging.DEBUG,format='%(asctime)s : %(message)s')   
   
-  #print('__name__ is ',__name__,',so running code')
+  print('__name__ is ',__name__,',so running code')
   while True:
     m=astms(conf.inbox_data,conf.inbox_arch,conf.outbox_data,conf.outbox_arch,conf.alarm_time,conf.host_address,conf.host_port,conf.select_timeout)
     m.astmg_loop()
